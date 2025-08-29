@@ -1,7 +1,7 @@
 import React from 'react'
 import { Input, InputProps } from '@nextui-org/input'
 
-export default function FormInput({...props}: InputProps) {
+const FormInput = React.memo(function FormInput({...props}: InputProps) {
     return (
         <Input
             radius='sm'
@@ -10,4 +10,6 @@ export default function FormInput({...props}: InputProps) {
             {...props}
         />
     )
-}
+})
+
+export default FormInput

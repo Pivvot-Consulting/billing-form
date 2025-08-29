@@ -5,7 +5,7 @@ import { cookies } from "next/headers"
 import { Bill } from "@/interfaces/interfaces"
 import CONSTANTS from "@/constants/Constants"
 import ENV from "@/env/Env"
-import { handleError, ApiError } from "@/utils/errorHandler"
+import { handleError } from '@/utils/errorHandler';
 
 // Autenticación
 export const auth = cache(async (): Promise<string>=>{
@@ -27,15 +27,15 @@ export const auth = cache(async (): Promise<string>=>{
         cookies().set(CONSTANTS.SIIGO_API_TOKEN_STORAGE_KEY, access_token)
         return access_token
 
-    } catch (error: any) {
-        const apiError = handleError(error, 'Siigo Authentication');
+    } catch (error: unknown) {
+        const apiError = handleError(error as Error, 'Siigo Authentication');
         console.error('Siigo authentication failed:', apiError);
         throw apiError;
     }
 })
 
 // Conexión API para creación de facturas y clientes
-export const createBill = cache(async(data: Bill): Promise<any>=>{
+export const createBill = cache(async(data: Bill): Promise<unknown>=>{
     try {
         const {name, lastName, address, documentNumber, serviceValue, email, phone} = data
 
@@ -128,8 +128,8 @@ export const createBill = cache(async(data: Bill): Promise<any>=>{
         console.log('Factura creada exitosamente:', response.data);
         return response.data;
 
-    } catch (error: any) {
-        const apiError = handleError(error, 'Siigo Create Bill');
+    } catch (error: unknown) {
+        const apiError = handleError(error as Error, 'Siigo Create Bill');
         console.error('Error creating bill:', apiError);
         throw apiError;
     }

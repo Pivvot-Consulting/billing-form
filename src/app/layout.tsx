@@ -5,6 +5,8 @@ import { NextUIProvider } from "@nextui-org/system";
 import { Toaster } from 'react-hot-toast';
 import Image from "next/image";
 import styles from './page.module.css'
+import ErrorBoundary from '@/components/ErrorBoundary';
+import ErrorTestComponent from '@/components/ErrorTestComponent';
 
 // Images
 import Logo from '../assets/icons/logo-white.png'
@@ -40,9 +42,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased ${styles.main}`}
       >
         <NextUIProvider>
-          <Image alt='logo' height={40} width={80} className='absolute top-5 right-3 object-contain z-10' src={Logo}/>
-          {children}
-          <Toaster />
+          <ErrorBoundary>
+            <Image alt='logo' height={40} width={80} className='absolute top-5 right-3 object-contain z-10' src={Logo}/>
+            {children}
+            <Toaster />
+            {process.env.NODE_ENV === 'development' && <ErrorTestComponent />}
+          </ErrorBoundary>
         </NextUIProvider>
       </body>
     </html>

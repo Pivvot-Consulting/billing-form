@@ -1,10 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import TimeSelector from "@/components/TimeSelector";
 
-export default function ServiceValue() {
-	const [qtyHours, setQtyHours] = useState(0);
-	const [qtyMinutes, setQtyMinutes] = useState(0);
-	const [serviceValue, setServiceValue] = useState(0);
+interface ServiceValueProps {
+	qtyHours: number;
+	qtyMinutes: number;
+	serviceValue: number;
+	onTimeChange: (hours: number, minutes: number) => void;
+	onServiceValueChange: (value: number) => void;
+}
+
+export default function ServiceValue({ 
+	qtyHours, 
+	qtyMinutes, 
+	serviceValue,
+	onTimeChange, 
+	onServiceValueChange 
+}: ServiceValueProps) {
 
 	// Calcula el valor del servicio cada vez que cambien las horas o minutos
 	useEffect(() => {
@@ -19,9 +30,14 @@ export default function ServiceValue() {
 			totalValue = qtyHours * 35000 + (qtyMinutes * 35000) / 60;
 		}
 
-		setServiceValue(Math.round(totalValue)); // Redondea para evitar decimales
+		const roundedValue = Math.round(totalValue);
+		onServiceValueChange(roundedValue); // Notifica al componente padre
 
-	}, [qtyHours, qtyMinutes]);
+	}, [qtyHours, qtyMinutes, onServiceValueChange]);
+
+	const handleTimeSelection = (hours: number, minutes: number) => {
+		onTimeChange(hours, minutes);
+	};
 
 	return (
 		<div>
@@ -29,13 +45,9 @@ export default function ServiceValue() {
 			<TimeSelector
 				qtyHours={qtyHours}
 				qtyMinutes={qtyMinutes}
-				setQtyHours={setQtyHours}
-				setQtyMinutes={setQtyMinutes}
-
-				handleTimeSelection={(hours, minutes) => {
-					setQtyHours(hours);
-					setQtyMinutes(minutes);
-				}}
+				setQtyHours={(hours) => onTimeChange(hours, qtyMinutes)}
+				setQtyMinutes={(minutes) => onTimeChange(qtyHours, minutes)}
+				handleTimeSelection={handleTimeSelection}
 			/>
 
 			{/* Valor del servicio */}

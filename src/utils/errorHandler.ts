@@ -5,7 +5,7 @@ export interface ApiError {
   message: string;
   status?: number;
   code?: string;
-  details?: any;
+  details?: unknown;
 }
 
 // Mapeo de códigos de error a mensajes amigables
@@ -33,18 +33,18 @@ const ERROR_MESSAGES: Record<string, string> = {
 };
 
 // Función principal para manejar errores
-export const handleError = (error: any, context?: string): ApiError => {
+export const handleError = (error: unknown, context?: string): ApiError => {
   console.error(`Error en ${context || 'aplicación'}:`, error);
 
-  let apiError: ApiError = {
+  const apiError: ApiError = {
     message: ERROR_MESSAGES.UNKNOWN_ERROR,
     status: 500,
     code: 'UNKNOWN_ERROR'
   };
 
   // Manejo de errores de Axios
-  if (error?.response) {
-    const { status, data } = error.response;
+  if (error && typeof error === 'object' && 'response' in error) {
+    const { status, data } = (error as { response: { status: number; data: { message?: string } } }).response;
     apiError.status = status;
     apiError.details = data;
 
@@ -84,25 +84,25 @@ export const handleError = (error: any, context?: string): ApiError => {
     }
   }
   // Manejo de errores de red
-  else if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
+  else if (error && typeof error === 'object' && 'code' in error && (error.code === 'ECONNABORTED' || (typeof error === 'object' && 'message' in error && typeof error.message === 'string' && error.message.includes('timeout')))) {
     apiError.code = 'TIMEOUT_ERROR';
     apiError.message = ERROR_MESSAGES.TIMEOUT_ERROR;
   }
-  else if (error?.code === 'NETWORK_ERROR' || !error?.response) {
+  else if (error && typeof error === 'object' && 'code' in error && (error.code === 'NETWORK_ERROR' || !('response' in error))) {
     apiError.code = 'NETWORK_ERROR';
     apiError.message = ERROR_MESSAGES.NETWORK_ERROR;
   }
   // Errores personalizados
-  else if (error?.message) {
+  else if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
     apiError.message = error.message;
-    apiError.code = error.code || 'CUSTOM_ERROR';
+    apiError.code = (error as { code?: string }).code || 'CUSTOM_ERROR';
   }
 
   return apiError;
 };
 
 // Función para mostrar toast de error
-export const showErrorToast = (error: any, context?: string): void => {
+export const showErrorToast = (error: unknown, context?: string): void => {
   const apiError = handleError(error, context);
   
   toast.error(apiError.message, {
@@ -138,7 +138,7 @@ export const showSuccessToast = (message: string): void => {
 };
 
 // Función para mostrar toast de carga
-export const showLoadingToast = (message: string): string => {
+export const showLoadingToast = (message: string) => {
   return toast.loading(message, {
     position: 'top-right',
     style: {
@@ -147,6 +147,20 @@ export const showLoadingToast = (message: string): string => {
       fontWeight: '500',
     },
   });
+};
+
+// Función para manejar operaciones asíncronas con manejo de errores
+export const handleAsyncWithErrorHandling = async <T>(
+  asyncFn: () => Promise<T>,
+  context?: string
+): Promise<T | null> => {
+  try {
+    return await asyncFn();
+  } catch (error: unknown) {
+    const apiError = handleError(error, context);
+    showErrorToast(apiError, context);
+    return null;
+  }
 };
 
 // Función para actualizar toast de carga
@@ -165,20 +179,34 @@ export const updateLoadingToast = (toastId: string, message: string, type: 'succ
 };
 
 // Función para validar datos del formulario
-export const validateFormData = (data: any): { isValid: boolean; errors: string[] } => {
+export const validateFormData = (data: Record<string, unknown>): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
-  if (!data.name?.trim()) errors.push('El nombre es requerido');
-  if (!data.lastName?.trim()) errors.push('El apellido es requerido');
-  if (!data.email?.trim()) errors.push('El correo electrónico es requerido');
-  if (!data.address?.trim()) errors.push('La dirección es requerida');
-  if (!data.phone?.trim()) errors.push('El teléfono es requerido');
+  console.log('Validando datos:', data);
+  console.log('ServiceValue en validación - tipo:', typeof data.serviceValue, 'valor:', data.serviceValue);
+
+  if (!data.name || typeof data.name !== 'string' || !data.name.trim()) errors.push('El nombre es requerido');
+  if (!data.lastName || typeof data.lastName !== 'string' || !data.lastName.trim()) errors.push('El apellido es requerido');
+  if (!data.email || typeof data.email !== 'string' || !data.email.trim()) errors.push('El correo electrónico es requerido');
+  if (!data.address || typeof data.address !== 'string' || !data.address.trim()) errors.push('La dirección es requerida');
+  if (!data.phone || typeof data.phone !== 'string' || !data.phone.trim()) errors.push('El teléfono es requerido');
   if (!data.documentNumber) errors.push('El número de documento es requerido');
-  if (!data.serviceValue || data.serviceValue <= 0) errors.push('El valor del servicio debe ser mayor a 0');
+  
+  // Validación mejorada para serviceValue
+  const serviceValue = data.serviceValue;
+  if (serviceValue === undefined || serviceValue === null) {
+    errors.push('El valor del servicio debe ser mayor a 0');
+  } else {
+    // Convertir a número si es string
+    const numericValue = typeof serviceValue === 'string' ? parseFloat(serviceValue) : serviceValue;
+    if (typeof numericValue !== 'number' || isNaN(numericValue) || numericValue <= 0) {
+      errors.push('El valor del servicio debe ser mayor a 0');
+    }
+  }
 
   // Validar formato de email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (data.email && !emailRegex.test(data.email)) {
+  if (data.email && typeof data.email === 'string' && !emailRegex.test(data.email)) {
     errors.push('El formato del correo electrónico no es válido');
   }
 
@@ -189,7 +217,7 @@ export const validateFormData = (data: any): { isValid: boolean; errors: string[
 
   // Validar teléfono
   const phoneRegex = /^[0-9]{10}$/;
-  if (data.phone && !phoneRegex.test(data.phone.replace(/\s/g, ''))) {
+  if (data.phone && typeof data.phone === 'string' && !phoneRegex.test(data.phone.replace(/\s/g, ''))) {
     errors.push('El teléfono debe tener 10 dígitos');
   }
 

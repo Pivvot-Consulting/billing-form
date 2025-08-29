@@ -11,7 +11,7 @@ import { NumericFormat } from 'react-number-format'
 import { Bill, BillErrors } from '@/interfaces/interfaces';
 // import { DocumentTypeType, ServiceTimeType } from '@/types/enumTypes';
 import { DocumentTypeType } from '@/types/enumTypes';
-import { showErrorToast, showSuccessToast, showLoadingToast, updateLoadingToast, validateFormData } from '@/utils/errorHandler';
+import { showErrorToast, showLoadingToast, updateLoadingToast, validateFormData } from '@/utils/errorHandler';
 
 // Services
 import * as SiigoService from '../../services/SiigoService'
@@ -50,6 +50,26 @@ export default function Form() {
 	const [errorResponse, setErrorResponse] = useState('');
 	const [loading, setLoading] = useState<boolean>(false)
 
+	// Optimized handlers with useCallback to prevent unnecessary re-renders
+	const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData(prev => ({ ...prev, name: e.target.value }));
+	}, []);
+
+	const handleLastNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData(prev => ({ ...prev, lastName: e.target.value }));
+	}, []);
+
+	const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData(prev => ({ ...prev, email: e.target.value }));
+	}, []);
+
+	const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData(prev => ({ ...prev, address: e.target.value }));
+	}, []);
+
+	const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData(prev => ({ ...prev, phone: e.target.value }));
+	}, []);
 
 	// Actualiza el valor de `serviceValue` cuando cambian `serviceTime` o `qtyTime` y ajusta automáticamente `qtyTime` si `serviceTime` es 'MH'
 	// useEffect(() => {
@@ -178,7 +198,9 @@ export default function Form() {
 		clearResponses();
 
 		// Validación con utilidad centralizada
-		const validation = validateFormData(formData);
+		console.log('FormData antes de validación:', formData);
+		console.log('ServiceValue tipo:', typeof formData.serviceValue, 'valor:', formData.serviceValue);
+		const validation = validateFormData(formData as Record<string, unknown>);
 		
 		if (!validation.isValid) {
 			validation.errors.forEach(error => showErrorToast(new Error(error), 'Validación'));
@@ -277,7 +299,7 @@ export default function Form() {
 					errorMessage={errors.name}
 					isRequired
 					value={formData.name ?? ''}
-					onValueChange={value => setFormData({ ...formData, name: value })}
+					onChange={handleNameChange}
 				/>
 				<FormInput
 					type="text"
@@ -286,7 +308,7 @@ export default function Form() {
 					errorMessage={errors.lastName}
 					isRequired
 					value={formData.lastName ?? ''}
-					onValueChange={value => setFormData({ ...formData, lastName: value })}
+					onChange={handleLastNameChange}
 				/>
 				<FormInput
 					type="email"
@@ -295,7 +317,7 @@ export default function Form() {
 					isInvalid={!!errors.email}
 					errorMessage={errors.email}
 					value={formData.email ?? ''}
-					onValueChange={value => setFormData({ ...formData, email: value })}
+					onChange={handleEmailChange}
 				/>
 				<FormInput
 					type="text"
@@ -304,7 +326,7 @@ export default function Form() {
 					errorMessage={errors.address}
 					isRequired
 					value={formData.address ?? ''}
-					onValueChange={value => setFormData({ ...formData, address: value })}
+					onChange={handleAddressChange}
 				/>
 				<FormInput
 					type="text"
@@ -313,7 +335,7 @@ export default function Form() {
 					errorMessage={errors.phone}
 					isRequired
 					value={formData.phone ?? ''}
-					onValueChange={value => setFormData({ ...formData, phone: value })}
+					onChange={handlePhoneChange}
 				/>
 				{/* <Select
 					items={selectTime}
@@ -361,24 +383,39 @@ export default function Form() {
 					decimalScale={0}
 				/> */}
 
-				{/* ¿Cuánto tiempo? */}
-				{/* <TimeSelector
-					qtyHours={formData.qtyHours}
-					setQtyHours={setQtyHours}
-					qtyMinutes={formData.qtyMinutes}
-					setQtyMinutes={setQtyMinutes}
-					handleTimeSelection={handleTimeSelection}
-				/> */}
-
 				{/* Valor del servicio */}
 				<div className="mt-4">
-					<ServiceValue />
+					<ServiceValue 
+						qtyHours={formData.qtyHours || 0}
+						qtyMinutes={formData.qtyMinutes || 0}
+						serviceValue={formData.serviceValue || 0}
+						onTimeChange={(hours, minutes) => {
+							setFormData({ 
+								...formData, 
+								qtyHours: hours, 
+								qtyMinutes: minutes 
+							});
+						}}
+						onServiceValueChange={(value) => {
+							setFormData({ 
+								...formData, 
+								serviceValue: value 
+							});
+						}}
+					/>
 				</div>
 
 				{errorResponse && <p className="text-danger mb-4">{errorResponse}</p>}
-				
-				<Button type="submit" color='primary' className="w-full text-white p-2 rounded-md" isLoading={loading}>
-					Enviar
+
+				<Button
+					type="submit"
+					color="primary"
+					size="lg"
+					className="w-full"
+					isLoading={loading}
+					disabled={loading}
+				>
+					{loading ? 'Generando factura...' : 'Generar Factura'}
 				</Button>
 
 			</form>
