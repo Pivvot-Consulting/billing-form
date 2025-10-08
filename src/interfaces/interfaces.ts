@@ -12,7 +12,8 @@ export interface Bill {
     // serviceTime?: ServiceTimeType,
     qtyHours?: number,
     qtyMinutes?: number,
-    serviceValue?: number
+    serviceValue?: number,
+    additionalValue?: number
 }
 
 export interface BillErrors {
@@ -32,9 +33,5 @@ export interface BillErrors {
 export interface TimeSelectorProps {
 	qtyHours: number;
 	qtyMinutes: number;
-
-	setQtyHours: (value: number) => void;
-	setQtyMinutes: (value: number) => void;
-
 	handleTimeSelection: (hours: number, minutes: number) => void;
 }

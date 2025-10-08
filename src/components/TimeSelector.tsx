@@ -1,78 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Button } from '@nextui-org/button'
 
 interface TimeSelectorProps {
 	qtyHours: number;
 	qtyMinutes: number;
-
-	setQtyHours: (value: number) => void;
-	setQtyMinutes: (value: number) => void;
-
 	handleTimeSelection: (hours: number, minutes: number) => void;
 }
 
-const TimeSelector: React.FC<TimeSelectorProps> = ({ qtyHours, setQtyHours, qtyMinutes, setQtyMinutes, handleTimeSelection, }) => {
-	const [formattedTime, setFormattedTime] = useState<string>("00:00");
-
-	// Actualiza el tiempo formateado cada vez que cambian las horas o minutos
-	useEffect(() => {
-		const hours = qtyHours < 10 ? `0${qtyHours}` : `${qtyHours}`;
-		const minutes = qtyMinutes < 10 ? `0${qtyMinutes}` : `${qtyMinutes}`;
-
-		setFormattedTime(`${hours}:${minutes}`);
-
-	}, [qtyHours, qtyMinutes]);
-
-	const increaseTime = () => {
-		let newMinutes = qtyMinutes + 15;
-		let newHours = qtyHours;
-
-		if (newMinutes >= 60) {
-			newMinutes = newMinutes - 60;
-			newHours = newHours + 1;
-		}
-
-		setQtyHours(newHours);
-		setQtyMinutes(newMinutes);
+const TimeSelector: React.FC<TimeSelectorProps> = ({ qtyHours, qtyMinutes, handleTimeSelection }) => {
+	// Función para determinar si un botón está seleccionado
+	const isSelected = (hours: number, minutes: number) => {
+		return qtyHours === hours && qtyMinutes === minutes;
 	};
 
-	const decreaseTime = () => {
-		let newMinutes = qtyMinutes - 15;
-		let newHours = qtyHours;
-
-		if (newMinutes < 0) {
-			if (newHours > 0) {
-				newMinutes = 60 + newMinutes; // Ajusta minutos
-				newHours = newHours - 1; // Resta una hora
-			} else {
-				newMinutes = 0; // Evita valores negativos
-			}
-		}
-
-		setQtyHours(newHours);
-		setQtyMinutes(newMinutes);
-	};
+	// Opciones de tiempo fijas con sus valores
+	const timeOptions = [
+		{ hours: 0, minutes: 30, label: "1/2 hora", price: "$30.000" },
+		{ hours: 1, minutes: 0, label: "1 hora", price: "$40.000" },
+		{ hours: 2, minutes: 0, label: "2 horas", price: "$80.000" }
+	];
 
 	return (
-		<div className="space-y-2">
-			<p className="text-gray-700 font-medium">¿Cuánto tiempo?</p>
+		<div className="space-y-4">
+			<p className="text-gray-700 font-medium text-lg">Selecciona el tiempo de servicio:</p>
 
-			<div className="flex gap-2">
-				<Button variant="flat" onClick={() => handleTimeSelection(1, 0)} className="flex-1 bg-gray-200">1 hora</Button>
-
-				<Button variant="flat" onClick={() => handleTimeSelection(0, 45)} className="flex-1 bg-gray-200">45 min</Button>
-
-				<Button variant="flat" onClick={() => handleTimeSelection(0, 30)} className="flex-1 bg-gray-200">30 min</Button>
-
-				<Button variant="flat" onClick={() => handleTimeSelection(0, 15)} className="flex-1 bg-gray-200">15 min</Button>
+			<div className="flex flex-row gap-3 justify-center">
+				{timeOptions.map((option) => (
+					<Button
+						key={`${option.hours}-${option.minutes}`}
+						variant={isSelected(option.hours, option.minutes) ? "solid" : "bordered"}
+						color={isSelected(option.hours, option.minutes) ? "primary" : "default"}
+						onClick={() => handleTimeSelection(option.hours, option.minutes)}
+						className="h-auto py-4 flex flex-col items-center gap-2 flex-1"
+					>
+						<span className="text-lg font-bold">{option.label}</span>
+						<span className="text-sm">{option.price}</span>
+					</Button>
+				))}
 			</div>
 
-			{/* Ajuste manual de tiempo */}
-			<div className="flex items-center justify-between mt-2">
-				<Button isDisabled={qtyHours <= 0 && qtyMinutes <= 0} onClick={decreaseTime} className="w-10 h-10">-</Button>
-				<p className="text-lg font-semibold">{formattedTime}</p>
-				<Button onClick={increaseTime} className="w-10 h-10">+</Button>
-			</div>
+			{/* Mostrar tiempo seleccionado */}
+			{(qtyHours > 0 || qtyMinutes > 0) && (
+				<div className="text-center">
+					<p className="text-md text-gray-600">
+						Tiempo seleccionado: <span className="font-semibold">{qtyHours > 0 ? `${qtyHours} ${qtyHours === 1 ? 'hora' : 'horas'}` : `${qtyMinutes} minutos`}</span>
+					</p>
+				</div>
+			)}
 		</div>
 	);
 };

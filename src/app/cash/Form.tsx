@@ -36,6 +36,7 @@ export default function Form() {
 		qtyHours: 0, 
 		qtyMinutes: 0, 
 		serviceValue: 0,
+		additionalValue: 0,
 	});
 
 	// Estado para los errores de validación
@@ -231,6 +232,7 @@ export default function Form() {
 				qtyHours: 0,
 				qtyMinutes: 0,
 				serviceValue: 0,
+				additionalValue: 0,
 			});
 
 		} catch (error) {
@@ -389,19 +391,26 @@ export default function Form() {
 						qtyHours={formData.qtyHours || 0}
 						qtyMinutes={formData.qtyMinutes || 0}
 						serviceValue={formData.serviceValue || 0}
-						onTimeChange={(hours, minutes) => {
-							setFormData({ 
-								...formData, 
+						additionalValue={formData.additionalValue || 0}
+						onTimeChange={useCallback((hours: number, minutes: number) => {
+							setFormData(prev => ({ 
+								...prev, 
 								qtyHours: hours, 
 								qtyMinutes: minutes 
-							});
-						}}
-						onServiceValueChange={(value) => {
-							setFormData({ 
-								...formData, 
+							}));
+						}, [])}
+						onServiceValueChange={useCallback((value: number) => {
+							setFormData(prev => ({ 
+								...prev, 
 								serviceValue: value 
-							});
-						}}
+							}));
+						}, [])}
+						onAdditionalValueChange={useCallback((value: number) => {
+							setFormData(prev => ({ 
+								...prev, 
+								additionalValue: value 
+							}));
+						}, [])}
 					/>
 				</div>
 
