@@ -1,12 +1,17 @@
 // Mapeo de tiempos de servicio a códigos de productos en Siigo
 // Actualiza estos códigos según los productos configurados en tu cuenta de Siigo
 
+export interface TaxInfo {
+    id: number;
+}
+
 export interface ServiceTimeMapping {
     hours: number;
     minutes: number;
     productCode: string;
     description: string;
     price: number;
+    taxes: TaxInfo[];
 }
 
 export const SIIGO_SERVICE_TIME_MAPPINGS: ServiceTimeMapping[] = [
@@ -15,21 +20,24 @@ export const SIIGO_SERVICE_TIME_MAPPINGS: ServiceTimeMapping[] = [
         minutes: 30,
         productCode: '001',
         description: 'Recorrido de 30 minutos',
-        price: 30000
+        price: 30000,
+        taxes: [{ id: 2929 }] // IVA 19%
     },
     {
         hours: 1,
         minutes: 0,
         productCode: '002',
         description: 'Recorrido de 1 hora',
-        price: 40000
+        price: 40000,
+        taxes: [{ id: 2929 }] // IVA 19%
     },
     {
         hours: 2,
         minutes: 0,
         productCode: '002', // Usa el mismo código de 1 hora, ajusta si tienes un código específico
         description: 'Recorrido de 2 horas',
-        price: 80000
+        price: 80000,
+        taxes: [{ id: 2929 }] // IVA 19%
     }
 ];
 
@@ -59,6 +67,20 @@ export function getServiceDescription(hours: number, minutes: number): string {
     );
     
     return mapping?.description ?? 'Servicio de transporte en scooter';
+}
+
+/**
+ * Obtiene los impuestos del servicio según el tiempo
+ * @param hours - Horas del servicio
+ * @param minutes - Minutos del servicio
+ * @returns Array de impuestos o array vacío
+ */
+export function getServiceTaxes(hours: number, minutes: number): TaxInfo[] {
+    const mapping = SIIGO_SERVICE_TIME_MAPPINGS.find(
+        m => m.hours === hours && m.minutes === minutes
+    );
+    
+    return mapping?.taxes ?? [];
 }
 
 /**
