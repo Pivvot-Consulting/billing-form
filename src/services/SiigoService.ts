@@ -8,6 +8,21 @@ import ENV from "@/env/Env"
 import { handleError } from '@/utils/errorHandler';
 import { getProductCodeByTime, getServiceDescription } from '@/constants/SiigoProductCodes';
 
+interface SiigoError {
+    Message: string;
+    [key: string]: unknown;
+}
+
+interface AxiosErrorResponse {
+    response?: {
+        status: number;
+        data: {
+            Status: number;
+            Errors?: SiigoError[];
+        };
+    };
+}
+
 // Autenticación
 export const auth = cache(async (): Promise<string>=>{
     try {        
@@ -56,7 +71,7 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
         // Obtener fecha actual
         const currentDate = new Date().toISOString().split('T')[0];
 
-        const invoiceData: any = {
+        const invoiceData: Record<string, unknown> = {
             "document": {
                 "id": ENV.SIIGO_DOCUMENT_ID // Id del documento de factura
             },
@@ -148,15 +163,14 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
         // Log detallado del error de Siigo para debugging
         console.error('Error en Siigo Create Bill:', error);
         
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const axiosError = error as any;
+        const axiosError = error as AxiosErrorResponse;
         if (axiosError?.response?.data) {
             console.error('Detalles del error de Siigo:', JSON.stringify(axiosError.response.data, null, 2));
             
             // Log específico de errores
             if (axiosError.response.data.Errors) {
                 console.error('Errores específicos de Siigo:');
-                axiosError.response.data.Errors.forEach((err: any, index: number) => {
+                axiosError.response.data.Errors.forEach((err: SiigoError, index: number) => {
                     console.error(`Error ${index + 1}:`, JSON.stringify(err, null, 2));
                 });
             }
