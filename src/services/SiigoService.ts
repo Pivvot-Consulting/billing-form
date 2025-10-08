@@ -6,6 +6,7 @@ import { Bill } from "@/interfaces/interfaces"
 import CONSTANTS from "@/constants/Constants"
 import ENV from "@/env/Env"
 import { handleError } from '@/utils/errorHandler';
+import { getProductCodeByTime, getServiceDescription } from '@/constants/SiigoProductCodes';
 
 // Autenticación
 export const auth = cache(async (): Promise<string>=>{
@@ -37,7 +38,7 @@ export const auth = cache(async (): Promise<string>=>{
 // Conexión API para creación de facturas y clientes
 export const createBill = cache(async(data: Bill): Promise<unknown>=>{
     try {
-        const {name, lastName, address, documentNumber, serviceValue, email, phone} = data
+        const {name, lastName, address, documentNumber, serviceValue, email, phone, qtyHours = 0, qtyMinutes = 0} = data
 
         // Validar datos requeridos
         if (!name || !lastName || !email || !address || !phone || !documentNumber || !serviceValue) {
@@ -46,12 +47,18 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
 
         console.log('SiigoService: Iniciando creación de factura con datos:', data);
 
+        // Obtener el código de producto correcto según el tiempo seleccionado
+        const productCode = getProductCodeByTime(qtyHours, qtyMinutes);
+        const productDescription = getServiceDescription(qtyHours, qtyMinutes);
+        
+        console.log(`Usando producto Siigo - Código: ${productCode}, Descripción: ${productDescription}`);
+
         // Obtener fecha actual
         const currentDate = new Date().toISOString().split('T')[0];
 
-        const invoiceData = {
+        const invoiceData: any = {
             "document": {
-                "id": 28010 // Id del documento de factura
+                "id": ENV.SIIGO_DOCUMENT_ID // Id del documento de factura
             },
             "date": currentDate,
             "customer": {
@@ -90,8 +97,7 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
                     }
                 ]
             },
-            "cost_center": 849, // C. de costos: PIVOT MOBILITY S.A.S.
-            "seller": 488, // Código de usuario creado para facturar
+            "seller": ENV.SIIGO_SELLER_ID, // Código de usuario creado para facturar
             "stamp": {
                 "send": true // Campo para indicar el envío de la factura electrónica
             },
@@ -101,8 +107,8 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
             "observations": "Facturación del servicio de transporte en scooter",
             "items": [
                 {
-                    "code": "7001",
-                    "description": "Servicio de transporte en scooter",
+                    "code": productCode,
+                    "description": productDescription,
                     "quantity": 1,
                     "price": serviceValue,
                     "discount": 0,
@@ -111,13 +117,23 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
             ],
             "payments": [
                 {
-                    "id": 4366,
+                    "id": ENV.SIIGO_PAYMENT_ID,
                     "value": serviceValue,
                     "due_date": currentDate
                 }
             ],
             "globaldiscounts": []
         };
+
+        // Agregar centro de costos solo si está configurado y es mayor a 0
+        if (ENV.SIIGO_COST_CENTER_ID && ENV.SIIGO_COST_CENTER_ID > 0) {
+            invoiceData.cost_center = ENV.SIIGO_COST_CENTER_ID;
+            console.log('Centro de costos incluido:', ENV.SIIGO_COST_CENTER_ID);
+        } else {
+            console.log('Centro de costos omitido (no configurado o 0)');
+        }
+
+        console.log('Datos de factura a enviar:', JSON.stringify(invoiceData, null, 2));
 
         const response = await postSiigo('v1/invoices', invoiceData);
         
@@ -129,8 +145,33 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
         return response.data;
 
     } catch (error: unknown) {
+        // Log detallado del error de Siigo para debugging
+        console.error('Error en Siigo Create Bill:', error);
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axiosError = error as any;
+        if (axiosError?.response?.data) {
+            console.error('Detalles del error de Siigo:', JSON.stringify(axiosError.response.data, null, 2));
+            
+            // Log específico de errores
+            if (axiosError.response.data.Errors) {
+                console.error('Errores específicos de Siigo:');
+                axiosError.response.data.Errors.forEach((err: any, index: number) => {
+                    console.error(`Error ${index + 1}:`, JSON.stringify(err, null, 2));
+                });
+            }
+        }
+        
+        // Mensaje de error más descriptivo
+        let errorMessage = 'Error en la solicitud a Siigo.';
+        if (axiosError?.response?.data?.Errors?.[0]?.Message) {
+            errorMessage = axiosError.response.data.Errors[0].Message;
+        }
+        
         const apiError = handleError(error as Error, 'Siigo Create Bill');
         console.error('Error creating bill:', apiError);
-        throw apiError;
+        
+        // Incluir el mensaje específico de Siigo en el error
+        throw new Error(`SIIGO_ERROR: ${errorMessage}`);
     }
 })
