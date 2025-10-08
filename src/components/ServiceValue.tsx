@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import TimeSelector from "@/components/TimeSelector";
 import { NumericFormat } from 'react-number-format';

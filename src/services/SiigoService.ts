@@ -6,7 +6,7 @@ import { Bill } from "@/interfaces/interfaces"
 import CONSTANTS from "@/constants/Constants"
 import ENV from "@/env/Env"
 import { handleError } from '@/utils/errorHandler';
-import { getProductCodeByTime, getServiceDescription } from '@/constants/SiigoProductCodes';
+import { getProductCodeByTime, getServiceDescription, getServiceTaxes } from '@/constants/SiigoProductCodes';
 
 interface SiigoError {
     Message: string;
@@ -65,8 +65,9 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
         // Obtener el código de producto correcto según el tiempo seleccionado
         const productCode = getProductCodeByTime(qtyHours, qtyMinutes);
         const productDescription = getServiceDescription(qtyHours, qtyMinutes);
+        const productTaxes = getServiceTaxes(qtyHours, qtyMinutes);
         
-        console.log(`Usando producto Siigo - Código: ${productCode}, Descripción: ${productDescription}`);
+        console.log(`Usando producto Siigo - Código: ${productCode}, Descripción: ${productDescription}, Impuestos:`, productTaxes);
 
         // Obtener fecha actual
         const currentDate = new Date().toISOString().split('T')[0];
@@ -127,7 +128,7 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
                     "quantity": 1,
                     "price": serviceValue,
                     "discount": 0,
-                    "taxes": []
+                    "taxes": productTaxes
                 }
             ],
             "payments": [
