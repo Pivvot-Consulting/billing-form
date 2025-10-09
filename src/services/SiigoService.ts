@@ -6,7 +6,7 @@ import { Bill } from "@/interfaces/interfaces"
 import CONSTANTS from "@/constants/Constants"
 import ENV from "@/env/Env"
 import { handleError } from '@/utils/errorHandler';
-import { getProductCodeByTime, getServiceDescription, getServiceTaxes } from '@/constants/SiigoProductCodes';
+import { getProductCodeByTime, getServiceDescription } from '@/constants/SiigoProductCodes';
 
 interface SiigoError {
     Message: string;
@@ -23,13 +23,15 @@ interface AxiosErrorResponse {
     };
 }
 
-// Autenticación
-export const auth = cache(async (): Promise<string>=>{
+// Autenticación - Obtiene un token fresco cada vez
+export const auth = async (): Promise<string> => {
     try {        
         if (!ENV.SIIGO_USER_NAME || !ENV.SIIGO_ACCESS_KEY) {
             throw new Error('SIIGO_AUTH_ERROR: Credenciales de Siigo no configuradas');
         }
 
+        console.log('Solicitando nuevo token de Siigo...');
+        
         const res = await post(`${CONSTANTS.SIIGO_API_BASE_URL}auth`, {
             "username": ENV.SIIGO_USER_NAME,
             "access_key": ENV.SIIGO_ACCESS_KEY
@@ -40,7 +42,15 @@ export const auth = cache(async (): Promise<string>=>{
         }
 
         const access_token = res.data.access_token
-        cookies().set(CONSTANTS.SIIGO_API_TOKEN_STORAGE_KEY, access_token)
+        console.log('Token de Siigo obtenido exitosamente');
+        
+        cookies().set(CONSTANTS.SIIGO_API_TOKEN_STORAGE_KEY, access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 23 // 23 horas (tokens de Siigo duran 24h)
+        })
+        
         return access_token
 
     } catch (error: unknown) {
@@ -48,7 +58,7 @@ export const auth = cache(async (): Promise<string>=>{
         console.error('Siigo authentication failed:', apiError);
         throw apiError;
     }
-})
+}
 
 // Conexión API para creación de facturas y clientes
 export const createBill = cache(async(data: Bill): Promise<unknown>=>{
@@ -65,9 +75,9 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
         // Obtener el código de producto correcto según el tiempo seleccionado
         const productCode = getProductCodeByTime(qtyHours, qtyMinutes);
         const productDescription = getServiceDescription(qtyHours, qtyMinutes);
-        const productTaxes = getServiceTaxes(qtyHours, qtyMinutes);
         
-        console.log(`Usando producto Siigo - Código: ${productCode}, Descripción: ${productDescription}, Impuestos:`, productTaxes);
+        console.log(`Usando producto Siigo - Código: ${productCode}, Descripción: ${productDescription}`);
+        console.log(`Valor (IVA incluido): ${serviceValue}`);
 
         // Obtener fecha actual
         const currentDate = new Date().toISOString().split('T')[0];
@@ -128,7 +138,7 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
                     "quantity": 1,
                     "price": serviceValue,
                     "discount": 0,
-                    "taxes": productTaxes
+                    "taxes": []
                 }
             ],
             "payments": [

@@ -29,9 +29,21 @@ const siigoInstance = axios.create(defaultHeaders);
 
 siigoInstance.interceptors.request.use(
     async (config) => {
-        const token = await cookies().get(Constants.SIIGO_API_TOKEN_STORAGE_KEY)?.value;
-        config.headers['Authorization'] = `Bearer ${!!token && JwtService.isExpired(token) ? '' : await SiigoService.auth()}`;
-        config.headers['Partner-Id'] = `Flotu`
+        const cookieToken = cookies().get(Constants.SIIGO_API_TOKEN_STORAGE_KEY)?.value;
+        
+        let token = cookieToken;
+        
+        // Si no hay token o el token está expirado, obtener uno nuevo
+        if (!token || JwtService.isExpired(token)) {
+            console.log('Token de Siigo no disponible o expirado, obteniendo uno nuevo...');
+            token = await SiigoService.auth();
+        } else {
+            console.log('Usando token existente de Siigo');
+        }
+        
+        config.headers['Authorization'] = `Bearer ${token}`;
+        config.headers['Partner-Id'] = 'Flotu';
+        
         return config;
     },
     error => Promise.reject(error),
