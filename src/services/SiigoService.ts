@@ -63,7 +63,7 @@ export const auth = async (): Promise<string> => {
 // Conexión API para creación de facturas y clientes
 export const createBill = cache(async(data: Bill): Promise<unknown>=>{
     try {
-        const {name, lastName, address, documentNumber, serviceValue, email, phone, qtyHours = 0, qtyMinutes = 0} = data
+        const {name, lastName, address, documentNumber, serviceValue, email, phone, qtyHours = 0, qtyMinutes = 0, isExtendedTime = false} = data
 
         // Validar datos requeridos
         if (!name || !lastName || !email || !address || !phone || !documentNumber || !serviceValue) {
@@ -72,11 +72,22 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
 
         console.log('SiigoService: Iniciando creación de factura con datos:', data);
 
-        // Obtener el código de producto correcto según el tiempo seleccionado
-        const productCode = getProductCodeByTime(qtyHours, qtyMinutes);
-        const productDescription = getServiceDescription(qtyHours, qtyMinutes);
+        // Obtener el código de producto correcto según el modo seleccionado
+        let productCode: string;
+        let productDescription: string;
         
-        console.log(`Usando producto Siigo - Código: ${productCode}, Descripción: ${productDescription}`);
+        if (isExtendedTime) {
+            // Modo tiempo extendido - usar código 003
+            productCode = '003';
+            productDescription = 'Tiempo Extendido';
+            console.log('Modo: Tiempo Extendido - Código: 003');
+        } else {
+            // Modo tiempo fijo - usar mapeo según horas y minutos
+            productCode = getProductCodeByTime(qtyHours, qtyMinutes);
+            productDescription = getServiceDescription(qtyHours, qtyMinutes);
+            console.log(`Modo: Tiempo Fijo - Código: ${productCode}, Descripción: ${productDescription}`);
+        }
+        
         console.log(`Valor (IVA incluido): ${serviceValue}`);
 
         // Obtener fecha actual

@@ -20,7 +20,7 @@ export const SIIGO_SERVICE_TIME_MAPPINGS: ServiceTimeMapping[] = [
     },
     {
         hours: 1,
-        minutes: 0,
+        minutes: 60,
         productCode: '002',
         description: 'Recorrido de 1 hora',
         price: 40000 // Precio con IVA incluido
@@ -28,8 +28,15 @@ export const SIIGO_SERVICE_TIME_MAPPINGS: ServiceTimeMapping[] = [
     {
         hours: 2,
         minutes: 0,
-        productCode: '002', // Usa el mismo código de 1 hora, ajusta si tienes un código específico
-        description: 'Recorrido de 2 horas',
+        productCode: '003', // Usa el mismo código de 1 hora, ajusta si tienes un código específico
+        description: 'Tiempo Extendido',
+        price: 0 // Precio con IVA incluido
+    },
+    {
+        hours: 2,
+        minutes: 120,
+        productCode: '004', // Usa el mismo código de 1 hora, ajusta si tienes un código específico
+        description: 'Recorrido de 2 hora',
         price: 80000 // Precio con IVA incluido
     }
 ];

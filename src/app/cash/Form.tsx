@@ -36,7 +36,7 @@ export default function Form() {
 		qtyHours: 0, 
 		qtyMinutes: 0, 
 		serviceValue: 0,
-		additionalValue: 0,
+		isExtendedTime: false, // Por defecto en modo tiempo fijo
 	});
 
 	// Estado para los errores de validación
@@ -232,7 +232,7 @@ export default function Form() {
 				qtyHours: 0,
 				qtyMinutes: 0,
 				serviceValue: 0,
-				additionalValue: 0,
+				isExtendedTime: false,
 			});
 
 		} catch (error) {
@@ -391,7 +391,7 @@ export default function Form() {
 						qtyHours={formData.qtyHours || 0}
 						qtyMinutes={formData.qtyMinutes || 0}
 						serviceValue={formData.serviceValue || 0}
-						additionalValue={formData.additionalValue || 0}
+						isExtendedTime={formData.isExtendedTime || false}
 						onTimeChange={useCallback((hours: number, minutes: number) => {
 							setFormData(prev => ({ 
 								...prev, 
@@ -405,10 +405,14 @@ export default function Form() {
 								serviceValue: value 
 							}));
 						}, [])}
-						onAdditionalValueChange={useCallback((value: number) => {
+						onExtendedTimeChange={useCallback((isExtended: boolean) => {
 							setFormData(prev => ({ 
 								...prev, 
-								additionalValue: value 
+								isExtendedTime: isExtended,
+								// Resetear valores cuando cambia el modo
+								qtyHours: isExtended ? 2 : 0,
+								qtyMinutes: isExtended ? 0 : 0,
+								serviceValue: 0
 							}));
 						}, [])}
 					/>
