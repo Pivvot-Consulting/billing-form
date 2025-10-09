@@ -13,7 +13,7 @@ export interface Bill {
     qtyHours?: number,
     qtyMinutes?: number,
     serviceValue?: number,
-    additionalValue?: number
+    isExtendedTime?: boolean
 }
 
 export interface BillErrors {
