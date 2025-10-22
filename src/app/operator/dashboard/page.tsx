@@ -43,7 +43,7 @@ export default function DashboardPage() {
     if (operator) {
       loadSales();
     }
-  }, [mounted, operator, authLoading, router]);
+  }, [mounted, operator, authLoading, router, loadSales]);
 
   const handleGenerateCode = async () => {
     let loadingToastId: string | null = null;

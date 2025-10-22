@@ -56,8 +56,8 @@ export function useOperatorCodeRealtime() {
       const code = await OperatorService.getOrCreateActiveCode();
       setActiveCode(code);
       setStatus(calculateCodeStatus(code));
-    } catch (err: any) {
-      const errorMessage = err.message || 'Error al cargar código activo';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Error al cargar código activo';
       setError(errorMessage);
       console.error('Error al cargar código:', err);
     } finally {
@@ -91,8 +91,8 @@ export function useOperatorCodeRealtime() {
       setTimeout(() => {
         setStatus(calculateCodeStatus(fullCode));
       }, 3000);
-    } catch (err: any) {
-      const errorMessage = err.message || 'Error al generar código';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Error al generar código';
       setError(errorMessage);
       console.error('Error al generar código:', err);
     } finally {
@@ -138,8 +138,8 @@ export function useOperatorCodeRealtime() {
       setTimeout(() => {
         setStatus(calculateCodeStatus(fullCode));
       }, 3000);
-    } catch (err: any) {
-      console.error('❌ Error al regenerar código:', err);
+    } catch (err: unknown) {
+      console.error('Error al regenerar código:', err);
       // Intentar recargar en lugar de fallar silenciosamente
       try {
         await loadActiveCode();

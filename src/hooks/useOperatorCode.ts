@@ -43,8 +43,8 @@ export function useOperatorCode() {
       setError(null);
       const code = await OperatorController.getOrCreateActiveCode();
       setActiveCode(code);
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar código activo');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Error al cargar código activo');
       console.error('Error al cargar código:', err);
     } finally {
       setLoading(false);
@@ -57,8 +57,8 @@ export function useOperatorCode() {
       setError(null);
       await OperatorController.handleReplaceCode();
       await loadActiveCode();
-    } catch (err: any) {
-      setError(err.message || 'Error al generar código');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Error al generar código');
       throw err;
     } finally {
       setLoading(false);
@@ -71,8 +71,8 @@ export function useOperatorCode() {
       setError(null);
       const codes = await OperatorController.getAllOperatorCodes();
       setAllCodes(codes);
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar códigos');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Error al cargar códigos');
       console.error('Error al cargar códigos:', err);
     } finally {
       setLoading(false);

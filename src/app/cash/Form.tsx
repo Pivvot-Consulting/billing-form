@@ -214,7 +214,7 @@ export default function Form() {
 			setLoading(true);
 			loadingToastId = showLoadingToast('Generando factura...');
 			
-			const result = await SiigoService.createBill(formData);
+			await SiigoService.createBill(formData);
 			
 			// Actualizar toast de carga a éxito
 			if (loadingToastId) {

@@ -24,7 +24,7 @@ export interface CreateSaleDto {
   p_version_privacidad: string;
   p_ip?: string | null;
   p_user_agent?: string;
-  p_marketing?: Record<string, any> | null;
+  p_marketing?: Record<string, unknown> | null;
 }
 
 /**

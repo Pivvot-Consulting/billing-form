@@ -36,7 +36,7 @@ export interface Aceptacion {
 export interface MarketingRespuesta {
   id: number;
   venta_id: number;
-  respuestas: Record<string, any>;
+  respuestas: Record<string, unknown>;
   creado_en: string;
 }
 
