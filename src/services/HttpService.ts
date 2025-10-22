@@ -35,10 +35,7 @@ siigoInstance.interceptors.request.use(
         
         // Si no hay token o el token está expirado, obtener uno nuevo
         if (!token || JwtService.isExpired(token)) {
-            console.log('Token de Siigo no disponible o expirado, obteniendo uno nuevo...');
             token = await SiigoService.auth();
-        } else {
-            console.log('Usando token existente de Siigo');
         }
         
         config.headers['Authorization'] = `Bearer ${token}`;

@@ -11,7 +11,7 @@ import { Bill, BillErrors } from '@/interfaces/interfaces';
 import { DocumentTypeType } from '@/types/enums';
 import { showErrorToast, showLoadingToast, updateLoadingToast } from '@/utils/errorHandler';
 import { useSales } from '@/hooks';
-import { DOCUMENT_TYPE_OPTIONS, ROUTES } from '@/constants';
+import { DOCUMENT_TYPE_OPTIONS, ROUTES, VALIDATION_RULES, VALIDATION_MESSAGES } from '@/constants';
 import * as SiigoService from '@/services/SiigoService';
 
 export default function CashForm() {
@@ -45,20 +45,86 @@ export default function CashForm() {
   const validateForm = () => {
     const newErrors: BillErrors & { operatorCode?: string } = {};
 
+    // Validar código de operador
     if (!operatorCode || operatorCode.trim().length === 0) {
-      newErrors.operatorCode = 'El código del vendedor es requerido';
+      newErrors.operatorCode = VALIDATION_MESSAGES.REQUIRED;
+    } else if (operatorCode.trim().length !== 4) {
+      newErrors.operatorCode = 'El código debe tener 4 dígitos';
     }
-    if (!formData.name) newErrors.name = 'El nombre es requerido';
-    if (!formData.lastName) newErrors.lastName = 'El apellido es requerido';
-    if (!formData.email) newErrors.email = 'El correo es requerido';
-    if (!formData.address) newErrors.address = 'La dirección es requerida';
-    if (!formData.phone) newErrors.phone = 'El número celular es requerido';
-    // documentType siempre tiene valor por defecto 'CC', no requiere validación
+
+    // Validar nombre
+    if (!formData.name) {
+      newErrors.name = VALIDATION_MESSAGES.REQUIRED;
+    } else if (formData.name.length < VALIDATION_RULES.NOMBRE.MIN_LENGTH) {
+      newErrors.name = VALIDATION_MESSAGES.MIN_LENGTH('Nombre', VALIDATION_RULES.NOMBRE.MIN_LENGTH, formData.name.length);
+    } else if (formData.name.length > VALIDATION_RULES.NOMBRE.MAX_LENGTH) {
+      newErrors.name = VALIDATION_MESSAGES.MAX_LENGTH('Nombre', VALIDATION_RULES.NOMBRE.MAX_LENGTH, formData.name.length);
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.name)) {
+      newErrors.name = VALIDATION_MESSAGES.NAME_INVALID;
+    }
+
+    // Validar apellido
+    if (!formData.lastName) {
+      newErrors.lastName = VALIDATION_MESSAGES.REQUIRED;
+    } else if (formData.lastName.length < VALIDATION_RULES.APELLIDO.MIN_LENGTH) {
+      newErrors.lastName = VALIDATION_MESSAGES.MIN_LENGTH('Apellido', VALIDATION_RULES.APELLIDO.MIN_LENGTH, formData.lastName.length);
+    } else if (formData.lastName.length > VALIDATION_RULES.APELLIDO.MAX_LENGTH) {
+      newErrors.lastName = VALIDATION_MESSAGES.MAX_LENGTH('Apellido', VALIDATION_RULES.APELLIDO.MAX_LENGTH, formData.lastName.length);
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.lastName)) {
+      newErrors.lastName = VALIDATION_MESSAGES.NAME_INVALID;
+    }
+
+    // Validar email
+    if (!formData.email) {
+      newErrors.email = VALIDATION_MESSAGES.REQUIRED;
+    } else if (!VALIDATION_RULES.EMAIL.PATTERN.test(formData.email)) {
+      newErrors.email = VALIDATION_MESSAGES.INVALID_EMAIL;
+    }
+
+    // Validar dirección
+    if (!formData.address) {
+      newErrors.address = VALIDATION_MESSAGES.REQUIRED;
+    } else if (formData.address.length < 5) {
+      newErrors.address = 'La dirección debe tener al menos 5 caracteres';
+    }
+
+    // Validar teléfono (MEJORADO - más descriptivo)
+    if (!formData.phone) {
+      newErrors.phone = VALIDATION_MESSAGES.REQUIRED;
+    } else {
+      const phoneStr = formData.phone.toString().trim();
+      
+      // Verificar que solo contenga números
+      if (!/^\d+$/.test(phoneStr)) {
+        newErrors.phone = VALIDATION_MESSAGES.PHONE_ONLY_NUMBERS;
+      }
+      // Verificar longitud exacta
+      else if (phoneStr.length < VALIDATION_RULES.TELEFONO.MIN_LENGTH) {
+        newErrors.phone = VALIDATION_MESSAGES.PHONE_TOO_SHORT(phoneStr.length);
+      } else if (phoneStr.length > VALIDATION_RULES.TELEFONO.MAX_LENGTH) {
+        newErrors.phone = VALIDATION_MESSAGES.PHONE_TOO_LONG(phoneStr.length);
+      }
+    }
+
+    // Validar número de documento
     if (!formData.documentNumber || formData.documentNumber === 0) {
-      newErrors.documentNumber = 'El número de documento es requerido';
+      newErrors.documentNumber = VALIDATION_MESSAGES.REQUIRED;
+    } else {
+      const docStr = formData.documentNumber.toString();
+      const docRules = VALIDATION_RULES.DOCUMENTO[formData.documentType];
+      
+      if (docStr.length < docRules.MIN_LENGTH) {
+        const docTypeName = DOCUMENT_TYPE_OPTIONS.find(t => t.key === formData.documentType)?.label || formData.documentType;
+        newErrors.documentNumber = VALIDATION_MESSAGES.DOCUMENT_TOO_SHORT(docTypeName, docRules.MIN_LENGTH, docStr.length);
+      } else if (docStr.length > docRules.MAX_LENGTH) {
+        const docTypeName = DOCUMENT_TYPE_OPTIONS.find(t => t.key === formData.documentType)?.label || formData.documentType;
+        newErrors.documentNumber = VALIDATION_MESSAGES.DOCUMENT_TOO_LONG(docTypeName, docRules.MAX_LENGTH, docStr.length);
+      }
     }
+
+    // Validar valor del servicio
     if (!formData.serviceValue || formData.serviceValue === 0) {
-      newErrors.serviceValue = 'El valor del servicio es requerido';
+      newErrors.serviceValue = VALIDATION_MESSAGES.SERVICE_VALUE_MIN;
     }
 
     return newErrors;
@@ -130,7 +196,7 @@ export default function CashForm() {
 
   return (
     <>
-      <Title>Generar Venta - Pago en Efectivo</Title>
+      <Title>Generar Venta - Pago en Estación</Title>
 
       {response && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
