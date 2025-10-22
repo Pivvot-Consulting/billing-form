@@ -144,7 +144,7 @@ export function useOperatorCodeRealtime() {
       try {
         await loadActiveCode();
       } catch (reloadErr) {
-        console.error('❌ Error al recargar código activo:', reloadErr);
+        console.error('Error al recargar código activo:', reloadErr);
         setError('No se pudo regenerar el código automáticamente');
       }
     } finally {
@@ -162,7 +162,6 @@ export function useOperatorCodeRealtime() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        console.warn('No hay usuario autenticado para suscripción');
         return;
       }
 

@@ -60,7 +60,7 @@ export default function MetodoPagoPage() {
             onPress={() => router.push(ROUTES.CLIENT.EFECTIVO)}
             isDisabled={!canContinue}
           >
-            Pago en Efectivo
+            Pago en Estación
           </Button>
         </div>
 

@@ -7,6 +7,7 @@ import CONSTANTS from "@/constants/Constants"
 import ENV from "@/env/Env"
 import { handleError } from '@/utils/errorHandler';
 import { getProductCodeByTime, getServiceDescription } from '@/constants/SiigoProductCodes';
+import { calculateTaxFromFinalPrice, createSiigoTaxObject } from '@/utils/taxCalculations';
 
 interface SiigoError {
     Message: string;
@@ -81,6 +82,17 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
             productDescription = getServiceDescription(qtyHours, qtyMinutes);
         }
 
+        // ===================================================
+        // CÁLCULO DE IMPUESTOS
+        // ===================================================
+        // El usuario ve el precio FINAL (con IVA incluido)
+        // Para Siigo necesitamos enviar:
+        // 1. Precio base (sin IVA)
+        // 2. IVA como impuesto separado
+        
+        const taxCalculation = calculateTaxFromFinalPrice(serviceValue);
+        const siigoTaxes = createSiigoTaxObject(serviceValue);
+
         // Obtener fecha actual
         const currentDate = new Date().toISOString().split('T')[0];
 
@@ -138,15 +150,15 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
                     "code": productCode,
                     "description": productDescription,
                     "quantity": 1,
-                    "price": serviceValue,
+                    "price": taxCalculation.basePrice, // ✅ Precio SIN IVA
                     "discount": 0,
-                    "taxes": []
+                    "taxes": siigoTaxes // ✅ IVA como impuesto separado
                 }
             ],
             "payments": [
                 {
                     "id": ENV.SIIGO_PAYMENT_ID,
-                    "value": serviceValue,
+                    "value": serviceValue, // ✅ Valor total (con IVA) que paga el cliente
                     "due_date": currentDate
                 }
             ],
