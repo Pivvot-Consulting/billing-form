@@ -111,13 +111,14 @@ export default function CashForm() {
       newErrors.documentNumber = VALIDATION_MESSAGES.REQUIRED;
     } else {
       const docStr = formData.documentNumber.toString();
-      const docRules = VALIDATION_RULES.DOCUMENTO[formData.documentType];
+      const docType = formData.documentType as DocumentTypeType;
+      const docRules = VALIDATION_RULES.DOCUMENTO[docType];
       
       if (docStr.length < docRules.MIN_LENGTH) {
-        const docTypeName = DOCUMENT_TYPE_OPTIONS.find(t => t.key === formData.documentType)?.label || formData.documentType;
+        const docTypeName = DOCUMENT_TYPE_OPTIONS.find(t => t.key === docType)?.label || docType;
         newErrors.documentNumber = VALIDATION_MESSAGES.DOCUMENT_TOO_SHORT(docTypeName, docRules.MIN_LENGTH, docStr.length);
       } else if (docStr.length > docRules.MAX_LENGTH) {
-        const docTypeName = DOCUMENT_TYPE_OPTIONS.find(t => t.key === formData.documentType)?.label || formData.documentType;
+        const docTypeName = DOCUMENT_TYPE_OPTIONS.find(t => t.key === docType)?.label || docType;
         newErrors.documentNumber = VALIDATION_MESSAGES.DOCUMENT_TOO_LONG(docTypeName, docRules.MAX_LENGTH, docStr.length);
       }
     }
