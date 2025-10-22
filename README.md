@@ -1,6 +1,6 @@
 # 🛴 Flotu Mobility - Sistema de Facturación Electrónica
 
-## Getting Startedd
+<div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)
