@@ -55,7 +55,7 @@ export default function LoginPage() {
       }
       
       // El hook de useAuth ya redirige al dashboard
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error en login:', error);
       
       if (loadingToastId) {

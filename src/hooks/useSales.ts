@@ -29,8 +29,8 @@ export function useSales() {
       const data = await SaleController.getOperatorSalesWithStats();
       setSales(data.sales);
       setStats(data.stats);
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar ventas');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Error al cargar ventas');
       console.error('Error al cargar ventas:', err);
     } finally {
       setLoading(false);
@@ -51,8 +51,8 @@ export function useSales() {
         generateInvoice
       );
       return result;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Error al crear venta';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Error al crear venta';
       setError(errorMessage);
       throw err;
     } finally {
@@ -65,8 +65,8 @@ export function useSales() {
       setLoading(true);
       setError(null);
       return await SaleController.getSaleDetails(saleId);
-    } catch (err: any) {
-      setError(err.message || 'Error al obtener detalles de venta');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Error al obtener detalles de venta');
       throw err;
     } finally {
       setLoading(false);
@@ -80,8 +80,8 @@ export function useSales() {
       await SaleController.updateInvoiceNumber(saleId, invoiceNumber);
       // Recargar ventas después de actualizar
       await loadSales();
-    } catch (err: any) {
-      setError(err.message || 'Error al actualizar factura');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Error al actualizar factura');
       throw err;
     } finally {
       setLoading(false);

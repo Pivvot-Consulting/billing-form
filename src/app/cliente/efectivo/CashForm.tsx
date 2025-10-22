@@ -84,7 +84,7 @@ export default function CashForm() {
       loadingToastId = showLoadingToast('Procesando venta...');
 
       // 1. Guardar en Supabase
-      const saleResult = await createSale(formData, operatorCode.trim(), true);
+      await createSale(formData, operatorCode.trim(), true);
 
       // 2. Generar factura en Siigo
       try {

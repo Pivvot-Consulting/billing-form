@@ -65,8 +65,8 @@ export function useAuth() {
       window.location.href = ROUTES.OPERATOR.DASHBOARD;
       
       return response;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Error al iniciar sesión';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Error al iniciar sesión';
       setError(errorMessage);
       throw err;
     } finally {
@@ -80,9 +80,9 @@ export function useAuth() {
       await AuthController.handleLogout();
       setSession(null);
       router.push(ROUTES.HOME);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error al cerrar sesión:', err);
-      setError(err.message || 'Error al cerrar sesión');
+      setError((err as Error).message || 'Error al cerrar sesión');
     } finally {
       setLoading(false);
     }
