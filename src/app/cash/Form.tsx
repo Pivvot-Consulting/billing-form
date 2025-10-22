@@ -18,7 +18,7 @@ import * as SiigoService from '../../services/SiigoService'
 
 const select = [
 	{ key: 'CC', label: 'Cédula de ciudadanía' }, 
-	{ key: 'PP', label: 'Pasaporte' }, 
+	{ key: 'Pasaporte', label: 'Pasaporte' }, 
 	{ key: 'NIT', label: 'NIT' }
 ]
 
@@ -199,8 +199,6 @@ export default function Form() {
 		clearResponses();
 
 		// Validación con utilidad centralizada
-		console.log('FormData antes de validación:', formData);
-		console.log('ServiceValue tipo:', typeof formData.serviceValue, 'valor:', formData.serviceValue);
 		const validation = validateFormData(formData as Record<string, unknown>);
 		
 		if (!validation.isValid) {
@@ -216,10 +214,7 @@ export default function Form() {
 			setLoading(true);
 			loadingToastId = showLoadingToast('Generando factura...');
 			
-			console.log('Enviando datos del formulario:', formData);
-			
 			const result = await SiigoService.createBill(formData);
-			console.log('Respuesta de Siigo:', result);
 			
 			// Actualizar toast de carga a éxito
 			if (loadingToastId) {
@@ -272,7 +267,8 @@ export default function Form() {
 					// selectedKeys={formData.documentType ? [formData.documentType] : []}
 					selectedKeys={[formData.documentType || 'CC']} // Asegura que siempre haya una opción seleccionada
 					onChange={(event) => {
-						setFormData({ ...formData, documentType: !!event.target.value ? event.target.value as DocumentTypeType : undefined })
+						const newValue = event.target.value as DocumentTypeType;
+						setFormData({ ...formData, documentType: newValue || 'CC' }) // Fallback a 'CC' si el valor es vacío
 					}}
 				>
 					{(data: { key: string, label: string }) => (
@@ -290,7 +286,8 @@ export default function Form() {
 					errorMessage={errors.documentNumber}
 					isRequired
 					value={formData.documentNumber ?? ''}
-					thousandSeparator
+					thousandSeparator="."
+					decimalSeparator=","
 					onValueChange={value => setFormData({ ...formData, documentNumber: value.floatValue })}
 					decimalScale={0}
 				/>
