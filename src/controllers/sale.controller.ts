@@ -16,7 +16,8 @@ import { DocumentTypeType } from '@/types/enums';
 export async function handleCreateSaleFromForm(
   formData: Bill,
   operatorCode: string,
-  _generateInvoice: boolean = true // Prefijo _ indica parámetro reservado para uso futuro
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _generateInvoice: boolean = true // Parámetro reservado para uso futuro
 ): Promise<CreateSaleResponseDto> {
   // Validar código de operador
   const isValidCode = await OperatorService.validateOperatorCode(operatorCode);
