@@ -282,8 +282,8 @@ aceptaciones (
 
 ### Requisitos Previos
 
-- **Node.js** 20.13.1 o superior
-- **npm** o **yarn** como gestor de paquetes
+- **Node.js** 20.x (versión LTS recomendada)
+- **npm** 10.x o superior como gestor de paquetes
 - **Cuenta de Supabase** (gratuita disponible)
 - **Cuenta de Siigo** con acceso a API
 - **Git** para control de versiones
