@@ -182,9 +182,6 @@ export const updateLoadingToast = (toastId: string, message: string, type: 'succ
 export const validateFormData = (data: Record<string, unknown>): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
-  console.log('Validando datos:', data);
-  console.log('ServiceValue en validación - tipo:', typeof data.serviceValue, 'valor:', data.serviceValue);
-
   if (!data.name || typeof data.name !== 'string' || !data.name.trim()) errors.push('El nombre es requerido');
   if (!data.lastName || typeof data.lastName !== 'string' || !data.lastName.trim()) errors.push('El apellido es requerido');
   if (!data.email || typeof data.email !== 'string' || !data.email.trim()) errors.push('El correo electrónico es requerido');

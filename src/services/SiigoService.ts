@@ -30,8 +30,6 @@ export const auth = async (): Promise<string> => {
             throw new Error('SIIGO_AUTH_ERROR: Credenciales de Siigo no configuradas');
         }
 
-        console.log('Solicitando nuevo token de Siigo...');
-        
         const res = await post(`${CONSTANTS.SIIGO_API_BASE_URL}auth`, {
             "username": ENV.SIIGO_USER_NAME,
             "access_key": ENV.SIIGO_ACCESS_KEY
@@ -42,7 +40,6 @@ export const auth = async (): Promise<string> => {
         }
 
         const access_token = res.data.access_token
-        console.log('Token de Siigo obtenido exitosamente');
         
         cookies().set(CONSTANTS.SIIGO_API_TOKEN_STORAGE_KEY, access_token, {
             httpOnly: true,
@@ -70,8 +67,6 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
             throw new Error('VALIDATION_ERROR: Faltan datos requeridos para crear la factura');
         }
 
-        console.log('SiigoService: Iniciando creación de factura con datos:', data);
-
         // Obtener el código de producto correcto según el modo seleccionado
         let productCode: string;
         let productDescription: string;
@@ -80,15 +75,11 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
             // Modo tiempo extendido - usar código 003
             productCode = '003';
             productDescription = 'Tiempo Extendido';
-            console.log('Modo: Tiempo Extendido - Código: 003');
         } else {
             // Modo tiempo fijo - usar mapeo según horas y minutos
             productCode = getProductCodeByTime(qtyHours, qtyMinutes);
             productDescription = getServiceDescription(qtyHours, qtyMinutes);
-            console.log(`Modo: Tiempo Fijo - Código: ${productCode}, Descripción: ${productDescription}`);
         }
-        
-        console.log(`Valor (IVA incluido): ${serviceValue}`);
 
         // Obtener fecha actual
         const currentDate = new Date().toISOString().split('T')[0];
@@ -165,12 +156,7 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
         // Agregar centro de costos solo si está configurado y es mayor a 0
         if (ENV.SIIGO_COST_CENTER_ID && ENV.SIIGO_COST_CENTER_ID > 0) {
             invoiceData.cost_center = ENV.SIIGO_COST_CENTER_ID;
-            console.log('Centro de costos incluido:', ENV.SIIGO_COST_CENTER_ID);
-        } else {
-            console.log('Centro de costos omitido (no configurado o 0)');
         }
-
-        console.log('Datos de factura a enviar:', JSON.stringify(invoiceData, null, 2));
 
         const response = await postSiigo('v1/invoices', invoiceData);
         
@@ -178,25 +164,10 @@ export const createBill = cache(async(data: Bill): Promise<unknown>=>{
             throw new Error('SIIGO_SERVER_ERROR: No se recibió respuesta del servidor');
         }
 
-        console.log('Factura creada exitosamente:', response.data);
         return response.data;
 
     } catch (error: unknown) {
-        // Log detallado del error de Siigo para debugging
-        console.error('Error en Siigo Create Bill:', error);
-        
         const axiosError = error as AxiosErrorResponse;
-        if (axiosError?.response?.data) {
-            console.error('Detalles del error de Siigo:', JSON.stringify(axiosError.response.data, null, 2));
-            
-            // Log específico de errores
-            if (axiosError.response.data.Errors) {
-                console.error('Errores específicos de Siigo:');
-                axiosError.response.data.Errors.forEach((err: SiigoError, index: number) => {
-                    console.error(`Error ${index + 1}:`, JSON.stringify(err, null, 2));
-                });
-            }
-        }
         
         // Mensaje de error más descriptivo
         let errorMessage = 'Error en la solicitud a Siigo.';

@@ -1,5 +1,5 @@
 # Dockerfile para aplicación Next.js - Billing Form
-FROM node:20.13.1-alpine AS base
+FROM node:20-alpine AS base
 
 # Instalar dependencias solo cuando sea necesario
 FROM base AS deps

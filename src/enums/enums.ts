@@ -1,6 +1,6 @@
 export enum DocumentType {
     CC = 'CC',
-    PP = 'PP',
+    Pasaporte = 'Pasaporte',
     NIT = 'NIT',
 }
 
