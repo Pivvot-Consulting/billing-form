@@ -24,8 +24,8 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
 	// Opciones de tiempo fijas con sus valores
 	const timeOptions = [
 		{ hours: 0, minutes: 30, label: "1/2 hora", price: "$30.000" },
-		{ hours: 1, minutes: 60, label: "1 hora", price: "$40.000" },
-		{ hours: 2, minutes: 120, label: "2 horas", price: "$80.000" }
+		{ hours: 1, minutes: 0, label: "1 hora", price: "$40.000" },
+		{ hours: 2, minutes: 0, label: "2 horas", price: "$80.000" }
 	];
 
 	return (

@@ -9,6 +9,7 @@ import { useOperatorCodeRealtime } from '@/hooks/useOperatorCodeRealtime';
 import { showErrorToast, showLoadingToast, updateLoadingToast } from '@/utils/errorHandler';
 import { ROUTES } from '@/constants/routes';
 import { CheckCircle2, Clock, XCircle, Sparkles } from 'lucide-react';
+import WompiTransactions from '@/components/WompiTransactions';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -230,6 +231,11 @@ export default function DashboardPage() {
               </Button>
             </div>
           )}
+        </div>
+
+        {/* Pagos Virtuales Pendientes */}
+        <div className="mb-6">
+          <WompiTransactions operatorId={operator.id} />
         </div>
 
         {/* Estadísticas de Ventas */}

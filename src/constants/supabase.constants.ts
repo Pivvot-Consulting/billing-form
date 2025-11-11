@@ -12,6 +12,7 @@ export const SUPABASE_TABLES = {
   VENTAS: 'ventas',
   ACEPTACIONES: 'aceptaciones',
   MARKETING_RESPUESTAS: 'marketing_respuestas',
+  WOMPI_TRANSACTIONS: 'wompi_transactions',
 } as const;
 
 /**
