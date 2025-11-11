@@ -58,6 +58,7 @@ function validateSignature(
     const values: string[] = [];
     for (const prop of properties) {
       const keys = prop.split('.');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let value: any = payload.data;
       
       for (const key of keys) {

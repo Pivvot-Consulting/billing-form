@@ -19,7 +19,6 @@ export default function PagoVirtualPage() {
   const [isExtendedTime, setIsExtendedTime] = useState<boolean>(false);
   const [operatorCode, setOperatorCode] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState<string>('');
   const [reference, setReference] = useState<string>('');
   const [codeError, setCodeError] = useState<string>('');
 
@@ -83,15 +82,13 @@ export default function PagoVirtualPage() {
         operatorCode: operatorCode.trim(),
       });
 
-      setPaymentUrl(paymentData.paymentUrl);
       setReference(paymentData.reference);
 
       if (loadingToastId) {
         updateLoadingToast(loadingToastId, '¡Enlace generado! Redirigiendo...', 'success');
       }
 
-      // Abrir Wompi en una nueva ventana o iframe
-      // Por ahora abrimos en la misma ventana
+      // Redirigir a Wompi
       window.location.href = paymentData.paymentUrl;
 
     } catch (error) {
@@ -105,7 +102,7 @@ export default function PagoVirtualPage() {
     } finally {
       setLoading(false);
     }
-  }, [serviceValue]);
+  }, [serviceValue, operatorCode]);
 
   // Detectar si venimos de una respuesta de Wompi
   useEffect(() => {
@@ -126,7 +123,6 @@ export default function PagoVirtualPage() {
         setServiceValue(0);
         setIsExtendedTime(false);
         setOperatorCode('');
-        setPaymentUrl('');
         setReference('');
       } else if (status === 'declined') {
         showErrorToast(new Error('El pago fue rechazado. Intenta nuevamente.'), 'Pago Rechazado');
