@@ -252,3 +252,29 @@ export async function validateOperatorCode(code: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Obtiene los datos del operador asociado a un código
+ * Retorna el operator_id si el código es válido
+ */
+export async function getOperatorByCode(code: string): Promise<{ operator_id: string } | null> {
+  try {
+    const { data, error } = await supabase
+      .from(SUPABASE_TABLES.OPERATOR_CODES)
+      .select('operator_id')
+      .eq('code', code)
+      .is('used_at', null)  // No ha sido usado
+      .gt('expires_at', new Date().toISOString())  // No ha expirado
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error en getOperatorByCode:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error al obtener operador por código:', error);
+    return null;
+  }
+}

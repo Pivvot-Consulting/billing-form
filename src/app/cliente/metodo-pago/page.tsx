@@ -47,7 +47,7 @@ export default function MetodoPagoPage() {
             color="secondary" 
             size="lg"
             className="w-full"
-            onPress={() => router.push(ROUTES.EXTERNAL.WOMPI)}
+            onPress={() => router.push(ROUTES.CLIENT.VIRTUAL)}
             isDisabled={!canContinue}
           >
             Pago Virtual

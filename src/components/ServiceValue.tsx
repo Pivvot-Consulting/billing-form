@@ -34,9 +34,9 @@ const ServiceValue = React.memo(function ServiceValue({
 		
 		if (qtyHours === 0 && qtyMinutes === 30) {
 			return 30000;
-		} else if (qtyHours === 1 && qtyMinutes === 60) {
+		} else if (qtyHours === 1 && qtyMinutes === 0) {
 			return 40000;
-		} else if (qtyHours === 2 && qtyMinutes === 120) {
+		} else if (qtyHours === 2 && qtyMinutes === 0) {
 			return 80000;
 		}
 		return 0;
@@ -111,8 +111,10 @@ const ServiceValue = React.memo(function ServiceValue({
 					<>
 						<p className="text-xl font-bold">Tiempo contratado:</p>
 						<p className="text-lg">
-							{qtyHours < 10 ? `0${qtyHours}` : qtyHours}:
-							{qtyMinutes < 10 ? `0${qtyMinutes}` : qtyMinutes} horas
+							{qtyHours > 0 
+								? `${qtyHours} ${qtyHours === 1 ? 'hora' : 'horas'}`
+								: `${qtyMinutes} minutos`
+							}
 						</p>
 					</>
 				)}
