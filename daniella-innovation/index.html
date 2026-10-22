@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Navegador de Innovación de Daniella</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">Pi<span class="v">V</span>VOT</div><div class="logo-sub">CONSULTING</div>
+  <div class="side-title">Navegador de innovación</div>
+  <nav class="nav nav-home-5">
+    <button class="nav-btn active" data-view="home"><span class="nav-icon">⌂</span>Home · resumen del portafolio</button>
+    <button class="nav-btn" data-view="navigator"><span class="nav-icon">◎</span>Mapa de plataformas · editar prioridades</button>
+    <button class="nav-btn" data-view="bom"><span class="nav-icon">◇</span>BOM · explorar oportunidades</button>
+    <button class="nav-btn" data-view="tree"><span class="nav-icon">⌘</span>Árbol de proyectos y MVP</button>
+    <button class="nav-btn" data-view="priority"><span class="nav-icon">▥</span>Priorización · comparar y decidir</button>
+  </nav>
+  <div class="sidebar-foot"><strong>De la inspiración a la acción.</strong><small>Los cambios quedan guardados en este navegador.</small></div>
+</aside>
+<main class="main">
+  <header class="topbar"><input class="search" placeholder="Buscar plataformas, proyectos, oportunidades…"><div class="profile"><div class="avatar">D</div><div><strong>Daniella</strong><small>Innovación en movimiento</small></div></div></header>
+
+
+  <section id="view-home" class="view active">
+    <div class="page-head">
+      <div>
+        <div class="eyebrow">Resumen ejecutivo del portafolio</div>
+        <h1>Home · portafolio de proyectos priorizados</h1>
+        <p>Esta pantalla resume las apuestas sugeridas del portafolio y permite navegar directamente a los proyectos más importantes.</p>
+      </div>
+      <button class="btn" id="goToPriority">Ver criterio de priorización</button>
+    </div>
+
+    <section class="home-hero panel">
+      <div class="home-hero-copy">
+        <div class="hero-kicker">Pivvot Consulting · visión rápida</div>
+        <h2>Las mejores apuestas hoy, explicadas de forma visual.</h2>
+        <p>Home traduce el análisis en decisiones fáciles de entender. Aquí ves el portafolio sugerido, la lógica detrás de cada apuesta y accesos directos a cada proyecto.</p>
+        <div class="home-stats" id="homeStats"></div>
+      </div>
+      <div class="home-hero-side">
+        <div class="mini-summary-card">
+          <strong>Cómo leer esta pantalla</strong>
+          <p>1. Revisa las 3 apuestas sugeridas.</p>
+          <p>2. Haz click en una tarjeta para abrir la ficha visual del proyecto.</p>
+          <p>3. Ve al mapa, BOM o árbol para profundizar.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-priorities">
+      <div class="section-inline-head">
+        <div>
+          <h2>Portafolio sugerido</h2>
+          <p>Una combinación balanceada entre validación rápida, construcción de activo y apuesta transformacional.</p>
+        </div>
+      </div>
+      <div class="home-grid" id="homePriorityGrid"></div>
+    </section>
+
+    <section class="panel home-gallery-panel">
+      <div class="section-inline-head">
+        <div>
+          <h2>Explorar proyectos priorizados</h2>
+          <p>Galería visual de proyectos recomendados para navegar más fácil.</p>
+        </div>
+      </div>
+      <div class="home-gallery" id="homeGallery"></div>
+    </section>
+  </section>
+
+  <section id="view-navigator" class="view">
+
+    <div class="page-head"><div><div class="eyebrow">Análisis competitivo editable</div><h1>Mapa interactivo de plataformas de crecimiento</h1><p>Aquí puedes ajustar el tamaño de cada plataforma, su atractividad, su fit estratégico y su calificación.</p></div><button class="btn" id="resetAll">Restablecer datos</button></div>
+    <div class="dashboard">
+      <div class="panel chart-card">
+        <div class="chart-title"><div><h2>Atractividad × Fit estratégico</h2><p>El tamaño de la burbuja representa el potencial de impacto.</p></div><div class="chart-meta"><span class="mini-chip">Arrastra las burbujas</span><span class="mini-chip">0–100</span></div></div>
+        <div class="chart-wrap"><svg id="bubbleChart" viewBox="0 0 860 440" aria-label="Mapa de plataformas"></svg></div>
+      </div>
+      <aside class="panel config" id="platformConfig"></aside>
+    </div>
+    <div class="platform-strip" id="platformStrip"></div>
+    <section class="panel projects-panel" id="projectsPanel"></section>
+    <section class="panel tree-panel" id="inlineTree"></section>
+  </section>
+
+  <section id="view-bom" class="view">
+    <div class="page-head"><div><div class="eyebrow">Business Opportunity Map</div><h1>BOM · mapa de oportunidades de negocio</h1><p>Este tablero organiza hechos, hipótesis, referencias y oportunidades para detectar dónde innovar.</p></div></div>
+    <div class="bom-layout"><div class="panel bom-board"><div class="bom-grid" id="bomGrid"></div></div><aside class="panel inspector" id="bomInspector"><h3>Inspector BOM</h3><p style="color:var(--muted)">Selecciona una celda.</p></aside></div>
+  </section>
+
+  <section id="view-tree" class="view">
+    <div class="page-head"><div><div class="eyebrow">Pensamiento estructurado</div><h1>Árbol de proyectos y MVP</h1><p>Aquí puedes ver cómo cada plataforma baja a proyectos concretos y a su primera validación.</p></div></div>
+    <div class="platform-strip" id="treePlatformStrip"></div>
+    <section class="panel tree-panel" id="fullTree"></section>
+  </section>
+
+  <section id="view-priority" class="view">
+    <div class="page-head"><div><div class="eyebrow">Portafolio balanceado</div><h1>Priorización del portafolio</h1><p>Compara plataformas y ajusta criterios para entender qué apuestas conviene priorizar.</p></div></div>
+    <div class="priority-layout">
+      <div>
+        <section class="panel criteria" id="criteriaPanel"></section>
+        <section class="panel ranking"><h2>Ranking de plataformas</h2><div class="rank-list" id="rankList"></div></section>
+      </div>
+      <aside class="panel recommend" id="recommendPanel"></aside>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="modal" id="projectModal">
+  <div class="modal-card" id="projectModalCard">
+    <div class="modal-hero">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow" id="modalEyebrow"></div>
+          <h2 id="modalTitle" style="margin:6px 0 0"></h2>
+        </div>
+        <button class="close" id="modalClose">×</button>
+      </div>
+      <div class="modal-hero-grid">
+        <div class="hero-story">
+          <p id="modalDesc"></p>
+          <div class="hero-badges" id="modalBadges"></div>
+        </div>
+        <div class="hero-scoreboard">
+          <div class="score-card"><div class="k">Potencial de impacto</div><div class="v" id="modalImpact"></div><p>Tamaño de la apuesta dentro del mapa.</p></div>
+          <div class="score-card"><div class="k">Atractividad</div><div class="v" id="modalAttractiveness"></div><p>Qué tan interesante se ve el mercado hoy.</p></div>
+          <div class="score-card"><div class="k">Fit estratégico</div><div class="v" id="modalFit"></div><p>Qué tan alineado está con Daniella.</p></div>
+          <div class="score-card"><div class="k">Calificación plataforma</div><div class="v" id="modalRating"></div><p>Score manual asignado por el equipo.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-workspace">
+      <div class="workspace-grid">
+        <div class="visual-stack">
+          <section class="surface">
+            <div class="surface-head">
+              <h3>Lectura rápida del proyecto</h3>
+              <small>Vista ejecutiva</small>
+            </div>
+            <div class="surface-body">
+              <div class="highlight-grid">
+                <div class="highlight">
+                  <div class="label">Propuesta de valor</div>
+                  <h4 id="modalValueTitle">La promesa</h4>
+                  <p id="modalValue"></p>
+                </div>
+                <div class="highlight">
+                  <div class="label">Cliente inicial</div>
+                  <h4 id="modalAudienceTitle">A quién va primero</h4>
+                  <p id="modalAudience"></p>
+                </div>
+                <div class="highlight">
+                  <div class="label">Canal de validación</div>
+                  <h4 id="modalChannelTitle">Dónde probarlo</h4>
+                  <p id="modalChannel"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="surface">
+            <div class="surface-head">
+              <h3>Arquitectura del proyecto</h3>
+              <small>Cómo se convierte en negocio</small>
+            </div>
+            <div class="surface-body flow-stage">
+              <div class="flow-grid">
+                <div class="connector"></div>
+                <div class="flow-node">
+                  <div class="step">1</div>
+                  <h4>Audiencia / problema</h4>
+                  <p id="modalFlowAudience"></p>
+                </div>
+                <div class="flow-node">
+                  <div class="step">2</div>
+                  <h4>Oferta central</h4>
+                  <p id="modalFlowOffer"></p>
+                </div>
+                <div class="flow-node">
+                  <div class="step">3</div>
+                  <h4>Canal / experiencia</h4>
+                  <p id="modalFlowChannel"></p>
+                </div>
+                <div class="flow-node">
+                  <div class="step">4</div>
+                  <h4>Monetización</h4>
+                  <p id="modalFlowRevenue"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="surface">
+            <div class="surface-head">
+              <h3>MVP y experimento</h3>
+              <small>Qué validar primero</small>
+            </div>
+            <div class="surface-body mvp-panel">
+              <div class="mvp-card">
+                <h4>MVP / primera validación</h4>
+                <p id="modalMvp"></p>
+                <ul id="modalExperiments"></ul>
+              </div>
+              <div class="mvp-card">
+                <h4>Activo que construye</h4>
+                <p id="modalAsset"></p>
+                <ul id="modalCapabilities"></ul>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="strategy-stack">
+          <section class="surface">
+            <div class="surface-head">
+              <h3>Plan de 90 días</h3>
+              <small>Ruta sugerida</small>
+            </div>
+            <div class="surface-body timeline" id="modalMilestones"></div>
+          </section>
+
+          <section class="surface">
+            <div class="surface-head">
+              <h3>Indicadores de éxito</h3>
+              <small>Qué mirar</small>
+            </div>
+            <div class="surface-body kpi-grid" id="modalKpis"></div>
+          </section>
+
+          <div class="project-note">
+            <strong>Tesis estratégica</strong>
+            <p id="modalStrategy"></p>
+          </div>
+
+          <section class="surface">
+            <div class="surface-head">
+              <h3>Modelo de negocio y foco</h3>
+              <small>Decisiones base</small>
+            </div>
+            <div class="surface-body">
+              <div class="highlight-grid" style="grid-template-columns:1fr">
+                <div class="highlight">
+                  <div class="label">Modelo de negocio</div>
+                  <h4 id="modalModelTitle">Cómo monetiza</h4>
+                  <p id="modalModel"></p>
+                </div>
+                <div class="highlight">
+                  <div class="label">Riesgo y horizonte</div>
+                  <h4 id="modalRiskTitle">Qué tan ambicioso es</h4>
+                  <p id="modalRisk"></p>
+                </div>
+                <div class="highlight">
+                  <div class="label">Horizonte temporal</div>
+                  <h4 id="modalHorizonTitle">Tiempo de maduración</h4>
+                  <p id="modalHorizon"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script><script src="app.js"></script>
+</body></html>
